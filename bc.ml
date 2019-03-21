@@ -1,71 +1,101 @@
-open Core
+open Printf
 
-type sExpr =
+type sExpr = 
     | Atom of string
     | List of sExpr list
 
-type expr =
+type expr = 
     | Num of float
     | Var of string
-    | Op1 of string*expr
-    | Op2 of string*expr*expr
+    | Op1 of string * expr
+    | Op2 of string * expr * expr
     | Fct of string * expr list
 
-type statement =
-    | Assign of string*expr
+type statement = 
+    | Assign of string * expr
     | Return of expr
     | Expr of expr
-    | If of expr*statement list * statement list
-    | While of expr*statement list
-    | For of statement*expr*statement*statement list
-    | FctDef of string * string list * statement list
+    | If of expr * statement list * statement list
+    | While of expr * statement list
+    | For of statement * expr * statement * statement list
+    | FctDef of string * string list * statement list 
 
-type block = statement list
+type block = statement list 
 
-type env = N of float (* complete *)
+type env = N of string * float
 
 type envQueue = env list
 
-let varEval (_v: string) (_q:envQueue): float  = 0.0
+let varEval (_v:string) (_q:envQueue): float  = 0.0  
 
-let evalExpr (_e: expr) (_q:envQueue): float  = 0.0
+let rec evalExpr (_e:expr) (_q:envQueue): float  =
+    match _e with
+    | Num(e) -> e
+    | Var(e) -> varEval e _q
+    | Op1(op, x) -> (
+        match op with
+        | "++" -> evalExpr x _q +. 1.
+        | "--" -> evalExpr x _q -. 1.
+        | "!"  -> if evalExpr x _q != 0.0 then 1. else 0.
+        | _ -> 0.0
+    )
+    | Op2(op, x, y) -> (
+        match op with
+        | "+" -> evalExpr x _q +. evalExpr y _q
+        | "*" -> evalExpr x _q *. evalExpr y _q
+        | "/" -> evalExpr x _q /. evalExpr y _q
+        | "-" -> evalExpr x _q -. evalExpr y _q
+        | "*" -> evalExpr x _q ** evalExpr y _q
+        | "==" -> if compare (evalExpr x _q) (evalExpr y _q)=0 then 1. else 0.
+        | "!=" -> if compare (evalExpr x _q) (evalExpr y _q)!=0 then 1. else 0.
+        | "<" -> if compare (evalExpr x _q) (evalExpr y _q)<0 then 1. else 0.
+        | "<=" -> if compare (evalExpr x _q) (evalExpr y _q)<=0 then 1. else 0.
+        | ">" -> if compare (evalExpr x _q) (evalExpr y _q)>0 then 1. else 0.
+        | ">=" -> if compare (evalExpr x _q) (evalExpr y _q)>=0 then 1. else 0.
+        | "&&" -> if compare (evalExpr x _q) (evalExpr y _q)!=0 then 1. else 0.
+        | _ -> 0.0
+    )
+    | Fct(name, xs) -> 0.0
 
 (* Test for expression *)
-let%expect_test "evalNum" =
-    evalExpr (Num 10.0) [] |>
+let%expect_test "evalNum" = 
+    evalExpr (Op2(">", Num(11.0), Num(10.0))) [] |>
     printf "%F";
-    [%expect {| 10. |}]
+    [%expect {| 1. |}]
 
-let evalCode (_code: block) (_q:envQueue): unit =
+let evalCode (_code: block) (_q:envQueue): unit = 
     (* crate new environment *)
     (* user fold_left  *)
     (* pop the local environment *)
     print_endline "Not implemented"
 
 let evalStatement (s: statement) (q:envQueue): envQueue =
-    match s with
-        | Assign(_v, _e) -> (* eval e and store in v *) q
-        | If(e, codeT, codeF) ->
+    match s with 
+        | Assign(_v, _e) -> q
+            (*let x = evalExpr _e q in
+            let newEnv:env = _v, x in
+                newEnv :: q*)
+        | If(e, codeT, codeF) -> 
             let cond = evalExpr e q in
                 if(cond>0.0) then
-                    evalCode codeT q
+                    evalCode codeT q 
                 else
                     evalCode codeF q
             ;q
         | _ -> q (*ignore *)
 
 
-(*
-    v = 10;
+(* 
+    v = 10; 
     v // display v
  *)
 let p1: block = [
         Assign("v", Num(1.0));
-        Expr(Var("v"))
+        Expr(Var("v")) 
 ]
 
 let%expect_test "p1" =
-    evalCode p1 [];
+    evalCode p1 []; 
     [%expect {| 1. |}]
 
 (*
@@ -81,8 +111,8 @@ let%expect_test "p1" =
 let p2: block = [
     Assign("v", Num(1.0));
     If(
-        Op2(">", Var("v"), Num(10.0)),
-        [Assign("v", Op2("+", Var("v"), Num(1.0)))],
+        Op2(">", Var("v"), Num(10.0)), 
+        [Assign("v", Op2("+", Var("v"), Num(1.0)))], 
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
@@ -96,7 +126,7 @@ let p2: block = [
 ]
 
 let%expect_test "p1" =
-    evalCode p2 [];
+    evalCode p2 []; 
     [%expect {| 3628800. |}]
 
 (*  Fibbonaci sequence
@@ -110,7 +140,8 @@ let%expect_test "p1" =
     f(3)
     f(5)
  *)
-let p3: block =
+ (*)
+let p3: block = 
     [
         FctDef("f", ["x"], [
             If(
@@ -126,8 +157,10 @@ let p3: block =
     ]
 
 let%expect_test "p3" =
-    evalCode p3 [];
-    [%expect {|
-        2.
-        5.
+    evalCode p3 []; 
+    [%expect {| 
+        2. 
+        5.      
     |}]
+
+*)
