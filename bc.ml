@@ -26,8 +26,8 @@ type env = string * float
 
 type envQueue = env list
 
-let searchQueue = (_v: string) *_q:envQueue =
-	match v with
+let searchQueue (_v: string) (q:envQueue): env =
+	match _v with
 	| v -> List.find(fun s -> fst s = v) q
 	| _ -> raise (Failure "not found")
 
@@ -74,7 +74,7 @@ let%expect_test "evalNum" =
     printf "%F";
     [%expect {| 1. |}]
 
-let evalCode (_code: block) (_q:envQueue): float =
+let evalCode (_code: block) (_q:envQueue): unit =
     (* crate new environment *)
     (* user fold_left  *)
     (* pop the local environment *)
