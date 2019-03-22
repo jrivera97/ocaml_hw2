@@ -22,11 +22,22 @@ type statement =
 
 type block = statement list 
 
-type env = N of string * float
+type env = string * float
 
 type envQueue = env list
 
-let varEval (_v:string) (_q:envQueue): float  = 0.0  
+let searchQueue (_v:string) (_q:envQueue): env =
+    match _v with
+    | v -> List.find (fun s -> fst s = v) _q
+    | _ -> raise (Failure "not found")
+
+let varEval (_v:string) (_q:envQueue): float  =
+    match _v with
+    | v -> (
+        let e = searchQueue v _q in
+        snd e
+    )
+    | _ -> 0.0 
 
 let rec evalExpr (_e:expr) (_q:envQueue): float  =
     match _e with
@@ -71,17 +82,22 @@ let evalCode (_code: block) (_q:envQueue): unit =
 
 let evalStatement (s: statement) (q:envQueue): envQueue =
     match s with 
-        | Assign(_v, _e) -> q
-            (*let x = evalExpr _e q in
+        | Assign(_v, _e) -> (
+            let x = evalExpr _e q in
             let newEnv:env = _v, x in
-                newEnv :: q*)
-        | If(e, codeT, codeF) -> 
+                newEnv :: q
+        )
+        | Expr(_e) -> (
+            print_float (evalExpr _e q); q
+        )
+        | If(e, codeT, codeF) -> (
             let cond = evalExpr e q in
                 if(cond>0.0) then
                     evalCode codeT q 
                 else
                     evalCode codeF q
             ;q
+        )
         | _ -> q (*ignore *)
 
 
