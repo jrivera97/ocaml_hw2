@@ -248,7 +248,7 @@ let p2: block = [
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
-            Expr(Op1("++a", Var("i"))),
+            Assign("i", Op2("+", Var("i"), Num(1.0))),
             [
                 Assign("v", Op2("*", Var("v"), Var("i")))
             ]
@@ -259,7 +259,7 @@ let p2: block = [
 
 let%expect_test "p2" =
     let _ = evalCode p2 [] in print_endline "";
-    [%expect {| 6. |}]
+    [%expect {| 3628800. |}]
 
 
 (*While test*)
@@ -269,7 +269,6 @@ let p4: block = [
         Op2("<", Var("v"), Num(10.0)),
         [
             Assign("v", Op2("+", Var("v"), Num(1.0)));
-            Expr(Var("v"))
         ]
     );
     Expr(Var("v"))
