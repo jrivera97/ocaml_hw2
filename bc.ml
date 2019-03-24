@@ -47,6 +47,16 @@ let getID (_n:env): string =
     | Number(f) -> ""
     | _ -> ""
 
+let getParams (_n:env): string list =
+	match _n with
+	| Function(s, sl, b) -> sl
+	| _ -> []
+
+let getCode (_n:env): block =
+	match _n with
+	| Function(s, sl, b) -> b
+	| _ -> []
+
 let getValue (_n:env): float =
     match _n with
     | Variable(s, f) -> f
@@ -70,10 +80,19 @@ let rec searchQueue (_v:string) (_q:envQueue): env =
         else searchQueue _v tl
     )
 
+let expr_of_expr_opt (v): expr =
+	match v with
+	| Some expr -> expr
+	| None -> raise(Failure "no expr found")
+
 let string_of_str_opt (v): string =
 	match v with
 	| Some str -> str
 	| None -> raise(Failure "no string found")
+
+let rec print_list = function
+	[] -> ()
+	| e::l -> print_string e ; print_string " " ; print_list l
 
 let rec getIndex (_n:env) (_q:envQueue): int =
     match _q with
@@ -116,8 +135,14 @@ let rec evalCode (_code: block) (_q:envQueue): envQueue =
             Printf.printf ""; _q
         )
         | st::tail -> ( (* eval next statement in list *)
+			if (existsInQueue "Return" _q) then (
+				Printf.printf "Returned: %f" (getValue (searchQueue "Return" _q ));
+				let _ = removeEl _q (getIndex (searchQueue "Return" _q) _q) in
+					evalCode [] _q
+			)
+			else
             let qq = evalStatement st _q in
-                evalCode tail qq
+				evalCode tail qq
         )
         | _ -> print_endline "0"; _q
 
@@ -134,10 +159,10 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                     let newEnv:env = Variable(_v, x) in
                         newEnv::qq
         )
-        (*| Return(_e) -> (
-            (evalExpr _e q); q
-            (*pop environment?*)
-        )*)
+        | Return(_e) -> (
+            evalStatement (Assign("Return", _e)) q
+
+        )
         | Expr(_e) -> (
             let (x, qq) = (evalExpr _e q) in
 			let op = (getExprID _e) in
@@ -172,6 +197,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
         )
         | FctDef(s, params, code) -> (
             if (existsInQueue s q) then (
+				print_list params;
                 let newList = (removeEl q (getIndex (searchQueue s q) q)) in
                 let qq = ref newList in
                     for x = 0 to (List.length params) do (
@@ -226,13 +252,24 @@ and evalExpr (_e:expr) (_q:envQueue): exprRet =
         | "&&" -> if abs (compare (fst (evalExpr x _q)) (fst (evalExpr y _q)))>0 then (1., _q) else (0., _q)
         | _ -> (0.0, _q)
     )
-    | Fct(name, xs) -> (343.0, _q) (* (
+    | Fct(name, xs) -> (*name is func_name, xs is list of args*)(
         if existsInQueue name _q then(
-
+			let qq = ref _q in
+			let calledFunc = searchQueue name !qq in
+			let params = getParams calledFunc in
+				for x = 0 to ((List.length params)-1) do (
+					let i = List.nth params x in
+					let iStr = string_of_str_opt i in
+					let arg = expr_of_expr_opt (List.nth xs x) in
+						qq := (evalStatement (Assign(iStr, arg)) !qq);
+				)
+				done;
+				let bl = getCode calledFunc in
+					(0.0, evalCode bl !qq)
         )
         else
             raise (Failure "Function not defined")
-    ) *)
+    )
 
 
 let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
@@ -340,16 +377,18 @@ let%expect_test "p4" =
 let p3: block =
     [
         FctDef("f", ["x"], [
-            If(
+            (* If(
                 Op2("<", Var("x"), Num(1.0)),
                 [Return(Num(1.0))],
                 [Return(Op2("+",
                     Fct("f", [Op2("-", Var("x"), Num(1.0))]),
                     Fct("f", [Op2("-", Var("x"), Num(1.0))])
-                ))])
-        ]);
+                ))]) *)
+				Return(Num(34.0));
+		]);
         Expr(Fct("f", [Num(3.0)]));
-        Expr(Fct("f", [Num(5.0)]));
+		Expr(Fct("f", [Num(3.0)]));
+        (* Expr(Fct("f", [Num(5.0)])); *)
     ]
 
 let%expect_test "p3" =
