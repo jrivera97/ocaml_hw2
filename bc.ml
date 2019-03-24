@@ -31,6 +31,11 @@ type env =
 
 type envQueue = env list
 
+let getExprID (_e:expr): string =
+    match _e with
+    | Var(x) -> x
+    | _ -> ""
+
 let getID (_n:env): string =
     match _n with
     | Variable(s, f) -> s
@@ -158,7 +163,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                             cond := evalExpr e !qq
                         done; !qq
         )
-        | FctDef(s, params, code) -> (
+        | FctDef(s, params, code) -> q (*(
             if (existsInQueue s q) then (
                 let newList = (removeEl q (getIndex (searchQueue s q) q)) in
                 let qq = ref newList in
@@ -175,7 +180,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                 let newFunc:env = Function(s, params, code) in
                     newFunc::q
             );
-        )
+        )*)
         | _ -> q (*ignore *)
 
 and evalExpr (_e:expr) (_q:envQueue): float  =
@@ -184,7 +189,11 @@ and evalExpr (_e:expr) (_q:envQueue): float  =
     | Var(e) -> varEval e _q
     | Op1(op, x) -> (
         match op with
-        | "++" -> evalExpr x _q +. 1. (* send to evalStatement *)
+        | "++" -> (
+            let varName = getID (searchQueue (getExprID x) _q) in
+            let qq = evalCode [Assign(varName, Op2("+", x, Num(1.0)))] _q in
+                evalExpr x qq
+        ) 
         | "--" -> evalExpr x _q -. 1.
         | "!"  -> if Float.abs (evalExpr x _q) > 0.0 then 1. else 0.
         | _ -> 0.0
@@ -205,13 +214,13 @@ and evalExpr (_e:expr) (_q:envQueue): float  =
         | "&&" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
         | _ -> 0.0
     )
-    | Fct(name, xs) -> (
-        if existsInQueue name q then(
+    | Fct(name, xs) -> 0.0 (* (
+        if existsInQueue name _q then(
                 
         )
         else
-            raise (Failure "Funtion not defined")
-    )
+            raise (Failure "Function not defined")
+    ) *)
 
 let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
     match _q with
@@ -234,7 +243,7 @@ let%expect_test "evalNum" =
 
 (* Test for nested expresions *)
 let%expect_test "evalNum" = 
-    evalExpr (Op2("-", Num 40.0, Op2("+", Num 20.0, Num 10.0)) [] |>
+    evalExpr (Op2("-", Num 40.0, Op2("+", Num 20.0, Num 10.0))) [] |>
     printf "%F";
     [%expect {| 10. |}]
 
@@ -273,7 +282,7 @@ let p2: block = [
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
-            Assign("i", Op2("+", Var("i"), Num(1.0))),
+            Expr(Op1("++", Var("i"))),
             [
                 Assign("v", Op2("*", Var("v"), Var("i")))
             ]
