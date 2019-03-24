@@ -338,6 +338,7 @@ let%expect_test "p3" =
     evalCode p3 [];
 	let _ = evalCode p3 [] in print_endline "";
     [%expect {|
+
         2.
         5.
     |}]
