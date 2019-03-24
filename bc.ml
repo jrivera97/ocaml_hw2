@@ -179,7 +179,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
         )*)
         | Expr(_e) -> (
             let exprResult = evalExpr _e q in
-            Printf.printf "%f" exprResult; q
+            Printf.printf "%f\n" exprResult; q
         )
         | If(e, codeT, codeF) -> (
             let cond = evalExpr e q in
@@ -187,13 +187,30 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                 evalCode codeT q
             else evalCode codeF q
         )
-        (*| While(e, code) -> (
-            let cond = evalExpr e q in
-            while cond>0.0 do
-                evalCode code q;
-                let cond = evalExpr e q
-            done
-        )*)
+        | While(e, code) -> (
+            let qq = ref [] in (
+                let cond = ref (evalExpr e q) in (
+                    if (!cond>0.0) then(
+                        qq := (evalCode code q);
+                        cond := (evalExpr e !qq)
+                    );
+                    while (!cond>0.0) do
+                        qq := evalCode code !qq;
+                        cond := evalExpr e !qq
+                    done; !qq
+                )
+            )
+        )
+        | For(s, e, st, code) -> (
+            let new_q = evalStatement s q in
+                let qq = ref new_q in
+                    let cond = ref (evalExpr e !qq) in
+                        while (!cond>0.0) do
+                            qq := evalCode code !qq;
+                            qq := evalStatement st !qq;
+                            cond := evalExpr e !qq
+                        done; !qq
+        )
         | _ -> q (*ignore *)
 
 
@@ -213,20 +230,6 @@ let p1: block = [
         [%expect {| 1. |}]
 
 
-let p4: block = [
-    Assign("v", Num(11.0));
-    If(
-        Op2(">", Var("v"), Num(10.0)),
-        [Expr(Var("v"))],
-        []
-    );
-]
-
-let%expect_test "p4" =
-   let _ = evalCode p4 [] in print_endline "";
-    [%expect {| 3628800. |}]
-
-
 (*
     v = 1.0;
     if (v>10.0) then
@@ -238,9 +241,9 @@ let%expect_test "p4" =
     v   // display v
 *)
 let p2: block = [
-    Assign("v", Num(5.0));
+    Assign("v", Num(1.0));
     If(
-        Op2("<", Var("v"), Num(10.0)),
+        Op2(">", Var("v"), Num(10.0)),
         [Assign("v", Op2("+", Var("v"), Num(1.0)))],
         [For(
             Assign("i", Num(2.0)),
@@ -256,7 +259,25 @@ let p2: block = [
 
 let%expect_test "p2" =
     let _ = evalCode p2 [] in print_endline "";
-    [%expect {| 3628800. |}]
+    [%expect {| 6. |}]
+
+
+(*While test*)
+let p4: block = [
+    Assign("v", Num(5.0));
+    While(
+        Op2("<", Var("v"), Num(10.0)),
+        [
+            Assign("v", Op2("+", Var("v"), Num(1.0)));
+            Expr(Var("v"))
+        ]
+    );
+    Expr(Var("v"))
+]
+
+let%expect_test "p4" =
+    let _ = evalCode p4 [] in print_endline "";
+    [%expect {| 10. |}]
 
 (*  Fibbonaci sequence
     define f(x) {
