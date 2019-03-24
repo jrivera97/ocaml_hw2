@@ -335,10 +335,8 @@ let p3: block =
         Expr(Fct("f", [Num(5.0)]));
     ]
 let%expect_test "p3" =
-    evalCode p3 [];
 	let _ = evalCode p3 [] in print_endline "";
     [%expect {|
-
         2.
         5.
     |}]
