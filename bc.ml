@@ -31,9 +31,13 @@ type env =
 
 type envQueue = env list
 
+type exprRet = float * envQueue
+
 let getExprID (_e:expr): string =
     match _e with
     | Var(x) -> x
+	| Op1(s, e) -> s
+	| Op2(s, e, e2) -> s
     | _ -> ""
 
 let getID (_n:env): string =
@@ -120,40 +124,38 @@ let rec evalCode (_code: block) (_q:envQueue): envQueue =
 and evalStatement (s: statement) (q:envQueue): envQueue =
     match s with
         | Assign(_v, _e) -> (
-            let x = evalExpr _e q in
-                if existsInQueue _v q then(
-                    let newList = removeEl q (getIndex (searchQueue _v q) q) in
+            let (x, qq) = (evalExpr _e q) in
+                if existsInQueue _v qq then(
+                    let newList = removeEl qq (getIndex (searchQueue _v qq) qq) in
                     let newEnv:env = Variable(_v, x) in
                         newEnv::newList
                     )
                 else
                     let newEnv:env = Variable(_v, x) in
-                        newEnv::q
+                        newEnv::qq
         )
         (*| Return(_e) -> (
             (evalExpr _e q); q
             (*pop environment?*)
         )*)
         | Expr(_e) -> (
-            let exprResult = evalExpr _e q in
-            Printf.printf "%f\n" exprResult; q
+            let (x, qq) = (evalExpr _e q) in
+			let op = (getExprID _e) in
+			if(abs (compare "++" op) > 0 && abs (compare "--" op) > 0 )
+			then (Printf.printf "%f\n" x); qq
         )
         | If(e, codeT, codeF) -> (
-            let cond = evalExpr e q in
+            let (cond, qq) = (evalExpr e q) in
             if cond > 0.0 then
-                evalCode codeT q
-            else evalCode codeF q
+                evalCode codeT qq
+            else evalCode codeF qq
         )
         | While(e, code) -> (
-            let qq = ref [] in (
-                let cond = ref (evalExpr e q) in (
-                    if (!cond>0.0) then(
-                        qq := (evalCode code q);
-                        cond := (evalExpr e !qq)
-                    );
+            let qq = ref (snd (evalExpr e q)) in (
+                let cond = ref (fst (evalExpr e !qq)) in (
                     while (!cond>0.0) do
                         qq := evalCode code !qq;
-                        cond := evalExpr e !qq
+                        cond := fst (evalExpr e !qq)
                     done; !qq
                 )
             )
@@ -161,11 +163,11 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
         | For(s, e, st, code) -> (
             let new_q = evalStatement s q in
                 let qq = ref new_q in
-                    let cond = ref (evalExpr e !qq) in
+                    let cond = ref (fst (evalExpr e !qq)) in
                         while (!cond>0.0) do
                             qq := evalCode code !qq;
                             qq := evalStatement st !qq;
-                            cond := evalExpr e !qq
+                            cond := fst (evalExpr e !qq)
                         done; !qq
         )
         | FctDef(s, params, code) -> (
@@ -189,10 +191,10 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
         )
         | _ -> q (*ignore *)
 
-and evalExpr (_e:expr) (_q:envQueue): float  =
+and evalExpr (_e:expr) (_q:envQueue): exprRet =
     match _e with
-    | Num(e) -> e
-    | Var(e) -> varEval e _q
+    | Num(e) -> (e, _q)
+    | Var(e) -> (varEval e _q, _q)
     | Op1(op, x) -> (
         match op with
         | "++" -> (
@@ -200,27 +202,31 @@ and evalExpr (_e:expr) (_q:envQueue): float  =
             let qq = evalCode [Assign(varName, Op2("+", x, Num(1.0)))] _q in
                 evalExpr x qq
         )
-        | "--" -> evalExpr x _q -. 1.
-        | "!"  -> if Float.abs (evalExpr x _q) > 0.0 then 1. else 0.
-        | _ -> 0.0
+        | "--" -> (
+            let varName = getID (searchQueue (getExprID x) _q) in
+            let qq = evalCode [Assign(varName, Op2("-", x, Num(1.0)))] _q in
+                evalExpr x qq
+        )
+        | "!"  -> if Float.abs (fst (evalExpr x _q)) > 0.0 then (1., _q) else (0., _q)
+        | _ -> (0.0, _q)
     )
     | Op2(op, x, y) -> (
         match op with
-        | "+" -> evalExpr x _q +. evalExpr y _q
-        | "*" -> evalExpr x _q *. evalExpr y _q
-        | "/" -> evalExpr x _q /. evalExpr y _q
-        | "-" -> evalExpr x _q -. evalExpr y _q
-        | "*" -> evalExpr x _q ** evalExpr y _q
-        | "==" -> if compare (evalExpr x _q) (evalExpr y _q)=0 then 1. else 0.
-        | "!=" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
-        | "<" -> if compare (evalExpr x _q) (evalExpr y _q)<0 then 1. else 0.
-        | "<=" -> if compare (evalExpr x _q) (evalExpr y _q)<=0 then 1. else 0.
-        | ">" -> if compare (evalExpr x _q) (evalExpr y _q)>0 then 1. else 0.
-        | ">=" -> if compare (evalExpr x _q) (evalExpr y _q)>=0 then 1. else 0.
-        | "&&" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
-        | _ -> 0.0
+        | "+" -> (fst (evalExpr x _q) +. fst (evalExpr y _q), _q)
+        | "*" -> (fst (evalExpr x _q) *. fst (evalExpr y _q), _q)
+        | "/" -> (fst (evalExpr x _q) /. fst (evalExpr y _q), _q)
+        | "-" -> (fst (evalExpr x _q) -. fst (evalExpr y _q), _q)
+        | "*" -> (fst (evalExpr x _q) ** fst (evalExpr y _q), _q)
+        | "==" -> if compare (fst (evalExpr x _q)) (fst (evalExpr y _q))=0 then (1.0, _q) else (0.0, _q)
+        | "!=" -> if abs (compare (fst (evalExpr x _q)) (fst (evalExpr y _q)))>0 then (1., _q) else (0., _q)
+        | "<" -> if compare (fst (evalExpr x _q)) (fst (evalExpr y _q))<0 then (1., _q) else (0., _q)
+        | "<=" -> if compare (fst (evalExpr x _q)) (fst (evalExpr y _q))<=0 then (1., _q) else (0., _q)
+        | ">" -> if compare (fst (evalExpr x _q)) (fst (evalExpr y _q))>0 then (1., _q) else (0., _q)
+        | ">=" -> if compare (fst (evalExpr x _q)) (fst (evalExpr y _q))>=0 then (1., _q) else (0., _q)
+        | "&&" -> if abs (compare (fst (evalExpr x _q)) (fst (evalExpr y _q)))>0 then (1., _q) else (0., _q)
+        | _ -> (0.0, _q)
     )
-    | Fct(name, xs) -> 343.0 (* (
+    | Fct(name, xs) -> (343.0, _q) (* (
         if existsInQueue name _q then(
 
         )
@@ -228,12 +234,13 @@ and evalExpr (_e:expr) (_q:envQueue): float  =
             raise (Failure "Function not defined")
     ) *)
 
+
 let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
     match _q with
     | [] -> raise (Failure "Variable not in environment")
     | n::tl -> (
         if getID n = _v then
-            let x = evalExpr _e _q in
+            let x = fst (evalExpr _e _q) in
             let newEnv:env = Variable(_v, x) in
             list_swap _q n newEnv
         else searchAndReplace _v _e tl
@@ -242,14 +249,14 @@ let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
 
 (* Test for expression *)
 let%expect_test "evalNum" =
-    evalExpr (Num 10.0) [] |>
+    fst (evalExpr (Num 10.0) [])|>
     printf "%F";
     [%expect {| 10. |}]
 
 
 (* Test for nested expresions *)
 let%expect_test "evalNum" =
-    evalExpr (Op2("-", Num 40.0, Op2("+", Num 20.0, Num 10.0))) [] |>
+    fst (evalExpr (Op2("-", Num 40.0, Op2("+", Num 20.0, Num 10.0))) []) |>
     printf "%F";
     [%expect {| 10. |}]
 
@@ -288,7 +295,7 @@ let p2: block = [
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
-            Assign("i", Op2("+", Var("i"), Num(1.0))),
+            Expr(Op1("++", Var("i"))),
             [
                 Assign("v", Op2("*", Var("v"), Var("i")))
             ]
