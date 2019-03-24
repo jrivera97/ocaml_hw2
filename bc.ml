@@ -137,8 +137,8 @@ let rec evalCode (_code: block) (_q:envQueue): envQueue =
         | st::tail -> ( (* eval next statement in list *)
 			if (existsInQueue "Return" _q) then (
 				Printf.printf "Returned: %f" (getValue (searchQueue "Return" _q ));
-				let _ = removeEl _q (getIndex (searchQueue "Return" _q) _q) in
-					evalCode [] _q
+				let qq = removeEl _q (getIndex (searchQueue "Return" _q) _q) in
+					evalCode [] qq
 			)
 			else
             let qq = evalStatement st _q in
@@ -388,6 +388,9 @@ let p3: block =
 		]);
         Expr(Fct("f", [Num(3.0)]));
 		Expr(Fct("f", [Num(3.0)]));
+		Expr(Fct("f", [Num(3.0)]));
+		Assign("c", Num(5.0));
+		Expr(Var("c"))
         (* Expr(Fct("f", [Num(5.0)])); *)
     ]
 
