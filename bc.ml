@@ -81,7 +81,7 @@ let removeEl (l:envQueue) (i:int): envQueue =
             front@back
 
 (* Test for expression *)
-let%expect_test "evalNum" =
+let%expect_test "searchQueueTest" =
     searchQueue "v" [Variable("v", 1.0)] |>
     getValue |>
     printf "%f";
@@ -95,59 +95,6 @@ let varEval (_v:string) (_q:envQueue): float  =
     )
     | _ -> 0.0
 
-let rec evalExpr (_e:expr) (_q:envQueue): float  =
-    match _e with
-    | Num(e) -> e
-    | Var(e) -> varEval e _q
-    | Op1(op, x) -> (
-        match op with
-        | "++" -> evalExpr x _q +. 1. (* send to evalStatement *)
-        | "--" -> evalExpr x _q -. 1.
-        | "!"  -> if Float.abs (evalExpr x _q) > 0.0 then 1. else 0.
-        | _ -> 0.0
-    )
-    | Op2(op, x, y) -> (
-        match op with
-        | "+" -> evalExpr x _q +. evalExpr y _q
-        | "*" -> evalExpr x _q *. evalExpr y _q
-        | "/" -> evalExpr x _q /. evalExpr y _q
-        | "-" -> evalExpr x _q -. evalExpr y _q
-        | "*" -> evalExpr x _q ** evalExpr y _q
-        | "==" -> if compare (evalExpr x _q) (evalExpr y _q)=0 then 1. else 0.
-        | "!=" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
-        | "<" -> if compare (evalExpr x _q) (evalExpr y _q)<0 then 1. else 0.
-        | "<=" -> if compare (evalExpr x _q) (evalExpr y _q)<=0 then 1. else 0.
-        | ">" -> if compare (evalExpr x _q) (evalExpr y _q)>0 then 1. else 0.
-        | ">=" -> if compare (evalExpr x _q) (evalExpr y _q)>=0 then 1. else 0.
-        | "&&" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
-        | _ -> 0.0
-    )
-    | Fct(name, xs) -> 0.0
-
-let print_statement (st:statement): unit =
-    match st with
-    | Assign(s, e) -> (
-        let x = evalExpr e [] in
-        (Printf.printf "%s%f" s x)
-    )
-    | _ -> print_endline ""
-
-let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
-    match _q with
-    | [] -> raise (Failure "Variable not in environment")
-    | n::tl -> (
-        if getID n = _v then
-            let x = evalExpr _e _q in
-            let newEnv:env = Variable(_v, x) in
-            list_swap _q n newEnv
-        else searchAndReplace _v _e tl
-    )
-
-(* Test for expression *)
-let%expect_test "evalNum" =
-    evalExpr (Op2(">", Num(11.0), Num(10.0))) [] |>
-    printf "%F";
-    [%expect {| 1. |}]
 
 let rec evalCode (_code: block) (_q:envQueue): envQueue =
     match _code with
@@ -211,7 +158,85 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                             cond := evalExpr e !qq
                         done; !qq
         )
+        | FctDef(s, params, code) -> (
+            if (existsInQueue s q) then (
+                let newList = (removeEl q (getIndex (searchQueue s q) q)) in
+                let qq = ref newList in
+                    for x = 0 to (List.length params) do (
+                    let i = List.nth params x in
+                        qq := (evalStatement (Assign(i, Num(0.0))) !qq);
+                    )
+                    done;
+                    let newFunc:env = Function(s, params, code) in
+                        newFunc::!qq
+
+            )
+            else (
+                let newFunc:env = Function(s, params, code) in
+                    newFunc::q
+            );
+        )
         | _ -> q (*ignore *)
+
+and evalExpr (_e:expr) (_q:envQueue): float  =
+    match _e with
+    | Num(e) -> e
+    | Var(e) -> varEval e _q
+    | Op1(op, x) -> (
+        match op with
+        | "++" -> evalExpr x _q +. 1. (* send to evalStatement *)
+        | "--" -> evalExpr x _q -. 1.
+        | "!"  -> if Float.abs (evalExpr x _q) > 0.0 then 1. else 0.
+        | _ -> 0.0
+    )
+    | Op2(op, x, y) -> (
+        match op with
+        | "+" -> evalExpr x _q +. evalExpr y _q
+        | "*" -> evalExpr x _q *. evalExpr y _q
+        | "/" -> evalExpr x _q /. evalExpr y _q
+        | "-" -> evalExpr x _q -. evalExpr y _q
+        | "*" -> evalExpr x _q ** evalExpr y _q
+        | "==" -> if compare (evalExpr x _q) (evalExpr y _q)=0 then 1. else 0.
+        | "!=" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
+        | "<" -> if compare (evalExpr x _q) (evalExpr y _q)<0 then 1. else 0.
+        | "<=" -> if compare (evalExpr x _q) (evalExpr y _q)<=0 then 1. else 0.
+        | ">" -> if compare (evalExpr x _q) (evalExpr y _q)>0 then 1. else 0.
+        | ">=" -> if compare (evalExpr x _q) (evalExpr y _q)>=0 then 1. else 0.
+        | "&&" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
+        | _ -> 0.0
+    )
+    | Fct(name, xs) -> (
+        if existsInQueue name q then(
+                
+        )
+        else
+            raise (Failure "Funtion not defined")
+    )
+
+let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
+    match _q with
+    | [] -> raise (Failure "Variable not in environment")
+    | n::tl -> (
+        if getID n = _v then
+            let x = evalExpr _e _q in
+            let newEnv:env = Variable(_v, x) in
+            list_swap _q n newEnv
+        else searchAndReplace _v _e tl
+    )
+
+
+(* Test for expression *)
+let%expect_test "evalNum" = 
+    evalExpr (Num 10.0) [] |>
+    printf "%F";
+    [%expect {| 10. |}]
+
+
+(* Test for nested expresions *)
+let%expect_test "evalNum" = 
+    evalExpr (Op2("-", Num 40.0, Op2("+", Num 20.0, Num 10.0)) [] |>
+    printf "%F";
+    [%expect {| 10. |}]
 
 
 (*
