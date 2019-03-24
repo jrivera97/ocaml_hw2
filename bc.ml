@@ -66,6 +66,11 @@ let rec searchQueue (_v:string) (_q:envQueue): env =
         else searchQueue _v tl
     )
 
+let string_of_str_opt (v): string =
+	match v with
+	| Some str -> str
+	| None -> raise(Failure "no string found")
+
 let rec getIndex (_n:env) (_q:envQueue): int =
     match _q with
     | [] -> raise (Failure "Variable not in environment")
@@ -163,13 +168,14 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                             cond := evalExpr e !qq
                         done; !qq
         )
-        | FctDef(s, params, code) -> q (*(
+        | FctDef(s, params, code) -> (
             if (existsInQueue s q) then (
                 let newList = (removeEl q (getIndex (searchQueue s q) q)) in
                 let qq = ref newList in
                     for x = 0 to (List.length params) do (
                     let i = List.nth params x in
-                        qq := (evalStatement (Assign(i, Num(0.0))) !qq);
+					let iStr = string_of_str_opt i in
+                        qq := (evalStatement (Assign(iStr, Num(0.0))) !qq);
                     )
                     done;
                     let newFunc:env = Function(s, params, code) in
@@ -180,7 +186,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
                 let newFunc:env = Function(s, params, code) in
                     newFunc::q
             );
-        )*)
+        )
         | _ -> q (*ignore *)
 
 and evalExpr (_e:expr) (_q:envQueue): float  =
@@ -214,7 +220,7 @@ and evalExpr (_e:expr) (_q:envQueue): float  =
         | "&&" -> if abs (compare (evalExpr x _q) (evalExpr y _q))>0 then 1. else 0.
         | _ -> 0.0
     )
-    | Fct(name, xs) -> 0.0 (* (
+    | Fct(name, xs) -> 343.0 (* (
         if existsInQueue name _q then(
 
         )
@@ -282,7 +288,7 @@ let p2: block = [
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
-            Expr(Op1("++", Var("i"))),
+            Assign("i", Op2("+", Var("i"), Num(1.0))),
             [
                 Assign("v", Op2("*", Var("v"), Var("i")))
             ]
@@ -323,7 +329,7 @@ let%expect_test "p4" =
     f(3)
     f(5)
  *)
- (*
+
 let p3: block =
     [
         FctDef("f", ["x"], [
@@ -345,5 +351,3 @@ let%expect_test "p3" =
         2.
         5.
     |}]
-
-*)
