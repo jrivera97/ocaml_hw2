@@ -65,5 +65,5 @@ S /Users/joserivera/.opam/4.06.1/lib/stdio
 S /Users/joserivera/.opam/4.06.1/lib/typerep
 S /Users/joserivera/.opam/4.06.1/lib/variantslib
 S .
-FLG -ppx '/Users/joserivera/Downloads/bc/ocaml_hw2/_build/default/.ppx/ee93aa23970957971ccb6244b7dba29b/ppx.exe --as-ppx --cookie '\''library-name="bc"'\'''
+FLG -ppx '/Users/joserivera/Desktop/ocaml_hw2/_build/default/.ppx/ee93aa23970957971ccb6244b7dba29b/ppx.exe --as-ppx --cookie '\''library-name="bc"'\'''
 FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A

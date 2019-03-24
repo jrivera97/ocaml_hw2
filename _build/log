@@ -1,52 +1,130 @@
 # dune runtest
 # OCAMLPARAM: unset
-$ /usr/bin/getconf _NPROCESSORS_ONLN > /var/folders/07/9j_xmrf54414699xmwwmkl140000gn/T/dunef91de4.output 2> /dev/null
-$ /Users/joserivera/.opam/4.06.1/bin/ocamlc.opt -config > /var/folders/07/9j_xmrf54414699xmwwmkl140000gn/T/duned93841.output
+$ /usr/bin/getconf _NPROCESSORS_ONLN > /var/folders/07/9j_xmrf54414699xmwwmkl140000gn/T/dune69f727.output 2> /dev/null
+$ /Users/joserivera/.opam/4.06.1/bin/ocamlc.opt -config > /var/folders/07/9j_xmrf54414699xmwwmkl140000gn/T/dune94b2a1.output
 $ (cd _build/default && .ppx/ee93aa23970957971ccb6244b7dba29b/ppx.exe --cookie 'library-name="bc"' -o bc.pp.ml --impl bc.ml -corrected-suffix .ppx-corrected -diff-cmd - -dump-ast)
+> File "bc.ml", line 214, characters 29-32:
+> Warning 1: this is the start of a comment.
 $ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamldep.opt -modules -impl bc.pp.ml) > _build/default/.bc.objs/bc.pp.ml.d
 $ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlc.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I .bc.objs/byte -I /Users/joserivera/.opam/4.06.1/lib/base -I /Users/joserivera/.opam/4.06.1/lib/base/caml -I /Users/joserivera/.opam/4.06.1/lib/base/md5 -I /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib -I /Users/joserivera/.opam/4.06.1/lib/bin_prot -I /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape -I /Users/joserivera/.opam/4.06.1/lib/core -I /Users/joserivera/.opam/4.06.1/lib/core_kernel -I /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests -I /Users/joserivera/.opam/4.06.1/lib/fieldslib -I /Users/joserivera/.opam/4.06.1/lib/jane-street-headers -I /Users/joserivera/.opam/4.06.1/lib/ocaml/threads -I /Users/joserivera/.opam/4.06.1/lib/parsexp -I /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/sexplib -I /Users/joserivera/.opam/4.06.1/lib/sexplib/unix -I /Users/joserivera/.opam/4.06.1/lib/sexplib0 -I /Users/joserivera/.opam/4.06.1/lib/spawn -I /Users/joserivera/.opam/4.06.1/lib/splittable_random -I /Users/joserivera/.opam/4.06.1/lib/stdio -I /Users/joserivera/.opam/4.06.1/lib/typerep -I /Users/joserivera/.opam/4.06.1/lib/variantslib -no-alias-deps -opaque -o .bc.objs/byte/bc.cmo -c -impl bc.pp.ml)
+> File "bc.ml", line 1, characters 0-11:
+> Warning 33: unused open Printf.
+> File "bc.ml", line 36, characters 18-19:
+> Warning 27: unused variable f.
+> File "bc.ml", line 37, characters 18-20:
+> Warning 27: unused variable sl.
+> File "bc.ml", line 37, characters 22-23:
+> Warning 27: unused variable b.
+> File "bc.ml", line 38, characters 12-15:
+> Warning 27: unused variable f.
+> File "bc.ml", line 39, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 43, characters 15-16:
+> Warning 27: unused variable s.
+> File "bc.ml", line 45, characters 15-16:
+> Warning 27: unused variable s.
+> File "bc.ml", line 45, characters 18-20:
+> Warning 27: unused variable sl.
+> File "bc.ml", line 45, characters 22-23:
+> Warning 27: unused variable b.
+> File "bc.ml", line 46, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 79, characters 6-9:
+> Warning 27: unused variable lst.
+> File "bc.ml", line 96, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 112, characters 10-11:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 214, characters 10-14:
+> Warning 27: unused variable name.
+> File "bc.ml", line 214, characters 16-18:
+> Warning 27: unused variable xs.
+> File "bc.ml", line 204, characters 10-13:
+> Warning 11: this match case is unused.
 $ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlopt.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I .bc.objs/byte -I .bc.objs/native -I /Users/joserivera/.opam/4.06.1/lib/base -I /Users/joserivera/.opam/4.06.1/lib/base/caml -I /Users/joserivera/.opam/4.06.1/lib/base/md5 -I /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib -I /Users/joserivera/.opam/4.06.1/lib/bin_prot -I /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape -I /Users/joserivera/.opam/4.06.1/lib/core -I /Users/joserivera/.opam/4.06.1/lib/core_kernel -I /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests -I /Users/joserivera/.opam/4.06.1/lib/fieldslib -I /Users/joserivera/.opam/4.06.1/lib/jane-street-headers -I /Users/joserivera/.opam/4.06.1/lib/ocaml/threads -I /Users/joserivera/.opam/4.06.1/lib/parsexp -I /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/sexplib -I /Users/joserivera/.opam/4.06.1/lib/sexplib/unix -I /Users/joserivera/.opam/4.06.1/lib/sexplib0 -I /Users/joserivera/.opam/4.06.1/lib/spawn -I /Users/joserivera/.opam/4.06.1/lib/splittable_random -I /Users/joserivera/.opam/4.06.1/lib/stdio -I /Users/joserivera/.opam/4.06.1/lib/typerep -I /Users/joserivera/.opam/4.06.1/lib/variantslib -intf-suffix .ml -no-alias-deps -opaque -o .bc.objs/native/bc.cmx -c -impl bc.pp.ml)
+> File "bc.ml", line 1, characters 0-11:
+> Warning 33: unused open Printf.
+> File "bc.ml", line 36, characters 18-19:
+> Warning 27: unused variable f.
+> File "bc.ml", line 37, characters 18-20:
+> Warning 27: unused variable sl.
+> File "bc.ml", line 37, characters 22-23:
+> Warning 27: unused variable b.
+> File "bc.ml", line 38, characters 12-15:
+> Warning 27: unused variable f.
+> File "bc.ml", line 39, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 43, characters 15-16:
+> Warning 27: unused variable s.
+> File "bc.ml", line 45, characters 15-16:
+> Warning 27: unused variable s.
+> File "bc.ml", line 45, characters 18-20:
+> Warning 27: unused variable sl.
+> File "bc.ml", line 45, characters 22-23:
+> Warning 27: unused variable b.
+> File "bc.ml", line 46, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 79, characters 6-9:
+> Warning 27: unused variable lst.
+> File "bc.ml", line 96, characters 6-7:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 112, characters 10-11:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 214, characters 10-14:
+> Warning 27: unused variable name.
+> File "bc.ml", line 214, characters 16-18:
+> Warning 27: unused variable xs.
+> File "bc.ml", line 204, characters 10-13:
+> Warning 11: this match case is unused.
 $ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlopt.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -a -o bc.cmxa .bc.objs/native/bc.cmx)
-$ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlc.opt -w -24 -bin-annot -I .bc.inline-tests/.bc.inline-tests.eobjs/byte -I /Users/joserivera/.opam/4.06.1/lib/base -I /Users/joserivera/.opam/4.06.1/lib/base/caml -I /Users/joserivera/.opam/4.06.1/lib/base/md5 -I /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib -I /Users/joserivera/.opam/4.06.1/lib/bin_prot -I /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape -I /Users/joserivera/.opam/4.06.1/lib/core -I /Users/joserivera/.opam/4.06.1/lib/core_kernel -I /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests -I /Users/joserivera/.opam/4.06.1/lib/fieldslib -I /Users/joserivera/.opam/4.06.1/lib/jane-street-headers -I /Users/joserivera/.opam/4.06.1/lib/ocaml/threads -I /Users/joserivera/.opam/4.06.1/lib/parsexp -I /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/evaluator -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/matcher -I /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runner/lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppxlib/print_diff -I /Users/joserivera/.opam/4.06.1/lib/re -I /Users/joserivera/.opam/4.06.1/lib/re/emacs -I /Users/joserivera/.opam/4.06.1/lib/re/glob -I /Users/joserivera/.opam/4.06.1/lib/sexplib -I /Users/joserivera/.opam/4.06.1/lib/sexplib/unix -I /Users/joserivera/.opam/4.06.1/lib/sexplib0 -I /Users/joserivera/.opam/4.06.1/lib/spawn -I /Users/joserivera/.opam/4.06.1/lib/splittable_random -I /Users/joserivera/.opam/4.06.1/lib/stdio -I /Users/joserivera/.opam/4.06.1/lib/typerep -I /Users/joserivera/.opam/4.06.1/lib/variantslib -I .bc.objs/byte -I .bc.objs/native -no-alias-deps -o .bc.inline-tests/.bc.inline-tests.eobjs/byte/run.cmo -c -impl .bc.inline-tests/run.ml)
-$ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlopt.opt -w -24 -I .bc.inline-tests/.bc.inline-tests.eobjs/byte -I .bc.inline-tests/.bc.inline-tests.eobjs/native -I /Users/joserivera/.opam/4.06.1/lib/base -I /Users/joserivera/.opam/4.06.1/lib/base/caml -I /Users/joserivera/.opam/4.06.1/lib/base/md5 -I /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib -I /Users/joserivera/.opam/4.06.1/lib/bin_prot -I /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape -I /Users/joserivera/.opam/4.06.1/lib/core -I /Users/joserivera/.opam/4.06.1/lib/core_kernel -I /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests -I /Users/joserivera/.opam/4.06.1/lib/fieldslib -I /Users/joserivera/.opam/4.06.1/lib/jane-street-headers -I /Users/joserivera/.opam/4.06.1/lib/ocaml/threads -I /Users/joserivera/.opam/4.06.1/lib/parsexp -I /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/evaluator -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/matcher -I /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runner/lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppxlib/print_diff -I /Users/joserivera/.opam/4.06.1/lib/re -I /Users/joserivera/.opam/4.06.1/lib/re/emacs -I /Users/joserivera/.opam/4.06.1/lib/re/glob -I /Users/joserivera/.opam/4.06.1/lib/sexplib -I /Users/joserivera/.opam/4.06.1/lib/sexplib/unix -I /Users/joserivera/.opam/4.06.1/lib/sexplib0 -I /Users/joserivera/.opam/4.06.1/lib/spawn -I /Users/joserivera/.opam/4.06.1/lib/splittable_random -I /Users/joserivera/.opam/4.06.1/lib/stdio -I /Users/joserivera/.opam/4.06.1/lib/typerep -I /Users/joserivera/.opam/4.06.1/lib/variantslib -I .bc.objs/byte -I .bc.objs/native -intf-suffix .ml -no-alias-deps -o .bc.inline-tests/.bc.inline-tests.eobjs/native/run.cmx -c -impl .bc.inline-tests/run.ml)
 $ (cd _build/default && /Users/joserivera/.opam/4.06.1/bin/ocamlopt.opt -w -24 -o .bc.inline-tests/run.exe -linkall -I /Users/joserivera/.opam/4.06.1/lib/base -I /Users/joserivera/.opam/4.06.1/lib/base/caml -I /Users/joserivera/.opam/4.06.1/lib/base/md5 -I /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib -I /Users/joserivera/.opam/4.06.1/lib/bin_prot -I /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape -I /Users/joserivera/.opam/4.06.1/lib/core -I /Users/joserivera/.opam/4.06.1/lib/core_kernel -I /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests -I /Users/joserivera/.opam/4.06.1/lib/fieldslib -I /Users/joserivera/.opam/4.06.1/lib/jane-street-headers -I /Users/joserivera/.opam/4.06.1/lib/ocaml/threads -I /Users/joserivera/.opam/4.06.1/lib/parsexp -I /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/evaluator -I /Users/joserivera/.opam/4.06.1/lib/ppx_expect/matcher -I /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runner/lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib -I /Users/joserivera/.opam/4.06.1/lib/ppxlib/print_diff -I /Users/joserivera/.opam/4.06.1/lib/re -I /Users/joserivera/.opam/4.06.1/lib/re/emacs -I /Users/joserivera/.opam/4.06.1/lib/re/glob -I /Users/joserivera/.opam/4.06.1/lib/sexplib -I /Users/joserivera/.opam/4.06.1/lib/sexplib/unix -I /Users/joserivera/.opam/4.06.1/lib/sexplib0 -I /Users/joserivera/.opam/4.06.1/lib/spawn -I /Users/joserivera/.opam/4.06.1/lib/splittable_random -I /Users/joserivera/.opam/4.06.1/lib/stdio -I /Users/joserivera/.opam/4.06.1/lib/typerep -I /Users/joserivera/.opam/4.06.1/lib/variantslib -I . /Users/joserivera/.opam/4.06.1/lib/sexplib0/sexplib0.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_sexp_conv/runtime-lib/ppx_sexp_conv_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/base/caml/caml.cmxa /Users/joserivera/.opam/4.06.1/lib/base/shadow_stdlib/shadow_stdlib.cmxa /Users/joserivera/.opam/4.06.1/lib/base/base.cmxa /Users/joserivera/.opam/4.06.1/lib/fieldslib/fieldslib.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/config/inline_test_config.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runtime-lib/ppx_inline_test_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_compare/runtime-lib/ppx_compare_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_expect/common/expect_test_common.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_expect/config/expect_test_config.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_expect/collector/expect_test_collector.cmxa /Users/joserivera/.opam/4.06.1/lib/variantslib/variantslib.cmxa /Users/joserivera/.opam/4.06.1/lib/typerep/typerep_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/base/md5/md5_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/ocaml/unix.cmxa /Users/joserivera/.opam/4.06.1/lib/ocaml/bigarray.cmxa /Users/joserivera/.opam/4.06.1/lib/bin_prot/shape/bin_shape_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/bin_prot/bin_prot.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_bench/runtime-lib/ppx_bench_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_assert/runtime-lib/ppx_assert_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_hash/runtime-lib/ppx_hash_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/core_kernel/base_for_tests/base_for_tests.cmxa /Users/joserivera/.opam/4.06.1/lib/stdio/stdio.cmxa /Users/joserivera/.opam/4.06.1/lib/jane-street-headers/jane_street_headers.cmxa /Users/joserivera/.opam/4.06.1/lib/parsexp/parsexp.cmxa /Users/joserivera/.opam/4.06.1/lib/sexplib/sexplib.cmxa /Users/joserivera/.opam/4.06.1/lib/splittable_random/splittable_random.cmxa /Users/joserivera/.opam/4.06.1/lib/core_kernel/core_kernel.cmxa /Users/joserivera/.opam/4.06.1/lib/sexplib/unix/sexplib_unix.cmxa /Users/joserivera/.opam/4.06.1/lib/ocaml/threads/threads.cmxa /Users/joserivera/.opam/4.06.1/lib/spawn/spawn.cmxa /Users/joserivera/.opam/4.06.1/lib/core/core.cmxa bc.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_inline_test/runner/lib/ppx_inline_test_runner_lib.cmxa /Users/joserivera/.opam/4.06.1/lib/re/re.cmxa /Users/joserivera/.opam/4.06.1/lib/re/emacs/re_emacs.cmxa /Users/joserivera/.opam/4.06.1/lib/re/glob/re_glob.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_expect/matcher/expect_test_matcher.cmxa /Users/joserivera/.opam/4.06.1/lib/ppxlib/print_diff/ppxlib_print_diff.cmxa /Users/joserivera/.opam/4.06.1/lib/ppx_expect/evaluator/ppx_expect_evaluator.cmxa .bc.inline-tests/.bc.inline-tests.eobjs/native/run.cmx)
 $ (cd _build/default && .bc.inline-tests/run.exe inline-test-runner bc -source-tree-root . -diff-cmd -)
 $ (cd _build/default && /usr/bin/diff -u bc.ml bc.ml.corrected)
-> --- bc.ml	2019-03-20 16:24:11.000000000 -0400
-> +++ bc.ml.corrected	2019-03-20 16:24:12.000000000 -0400
-> @@ -34,7 +34,7 @@
->  let%expect_test "evalNum" =
->      evalExpr (Num 10.0) [] |>
->      printf "%F";
-> -    [%expect {| 10. |}]
-> +    [%expect {| 0. |}]
+> --- bc.ml	2019-03-24 15:01:10.000000000 -0400
+> +++ bc.ml.corrected	2019-03-24 15:01:11.000000000 -0400
+> @@ -85,7 +85,7 @@
+>      searchQueue "v" [Variable("v", 1.0)] |>
+>      getValue |>
+>      printf "%f";
+> -    [%expect {| 1.0 |}]
+> +    [%expect {| 1.000000 |}]
 >  
->  let evalCode (_code: block) (_q:envQueue): unit =
->      (* crate new environment *)
-> @@ -66,7 +66,7 @@
+>  let varEval (_v:string) (_q:envQueue): float  =
+>      match _v with
+> @@ -258,7 +258,7 @@
 >  
->  let%expect_test "p1" =
->      evalCode p1 [];
-> -    [%expect {| 1. |}]
-> +    [%expect {| Not implemented |}]
+>  	let%expect_test "p1" =
+>  		let _ = (evalCode p1 []) in print_endline "";
+> -        [%expect {| 1. |}]
+> +        [%expect {| 1.000000 |}]
+>  
 >  
 >  (*
->      v = 1.0;
-> @@ -97,7 +97,7 @@
+> @@ -290,7 +290,7 @@
 >  
->  let%expect_test "p1" =
->      evalCode p2 [];
+>  let%expect_test "p2" =
+>      let _ = evalCode p2 [] in print_endline "";
 > -    [%expect {| 3628800. |}]
-> +    [%expect {| Not implemented |}]
+> +    [%expect {| 362880.000000 |}]
+>  
+>  
+>  (*While test*)
+> @@ -307,7 +307,7 @@
+>  
+>  let%expect_test "p4" =
+>      let _ = evalCode p4 [] in print_endline "";
+> -    [%expect {| 10. |}]
+> +    [%expect {| 10.000000 |}]
 >  
 >  (*  Fibbonaci sequence
 >      define f(x) {
-> @@ -128,6 +128,5 @@
->  let%expect_test "p3" =
->      evalCode p3 [];
+> @@ -338,6 +338,6 @@
+>  	let _ = evalCode p3 [] in print_endline "";
 >      [%expect {|
+>  
 > -        2.
 > -        5.
-> +        Not implemented
+> +        336.000000
+> +        336.000000
 >      |}]
 [1]
