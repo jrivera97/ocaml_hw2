@@ -1,6 +1,7 @@
 open Printf
 open Core
-
+ (*Alexandra Isaly and Jose Rivera
+ Recursive Functions not implemented*)
 
 type sExpr =
     | Atom of string
@@ -109,16 +110,18 @@ let rec list_swap l u v =
 let removeEl (l:envQueue) (i:int): envQueue =
     match l with
     | [] -> []
-    | lst -> let front = (List.slice l 0 i) in
-            let back = (List.slice l (i+1) 0) in
-            front@back
+    | lst -> (
+		if (i = 0) then (
+			List.slice l 1 0
+		)
+		else (
+			let front = (List.slice l 0 i) in
+	        let back = (List.slice l (i+1) 0) in
+	        	front@back
+		)
+	)
 
-(* Test for expression *)
-let%expect_test "searchQueueTest" =
-    searchQueue "v" [Variable("v", 1.0)] |>
-    getValue |>
-    printf "%f";
-    [%expect {| 1.0 |}]
+
 
 let varEval (_v:string) (_q:envQueue): float  =
     match _v with
@@ -128,29 +131,81 @@ let varEval (_v:string) (_q:envQueue): float  =
     )
     | _ -> 0.0
 
+let rec print_expr (e) =
+	match e with
+	| Num(f) -> printf "%f" f
+	| Var(s) -> printf "%s" s
+	| Op1 (s, e) -> printf "%s" s; print_expr e
+	| Op2 (s, e, e2) -> printf "%s" s; print_expr e; print_expr e2
+	| Fct (s, es) -> printf "%s" s; print_expr_list es
+
+and print_expr_list (es) =
+	match es with
+	| e::tail -> print_expr e; print_expr_list tail
+	| [] -> ()
+
+let rec print_statement_list (es) =
+	match es with
+	| s::tail -> print_statement s; print_statement_list tail
+	| [] -> ()
+
+and print_statement (s:statement) =
+	match s with
+	| Assign (s, e) -> printf "%s" s; print_expr e
+    | Return (e) -> print_expr e
+    | Expr(e) -> print_expr e
+    | If (e, sts, sts2) -> print_expr e; print_statement_list sts; print_statement_list sts2
+    | While (e, sts) -> print_expr e; print_statement_list sts
+    | For (s, e, s2 ,sts) -> print_statement s; print_expr e; print_statement s2; print_statement_list sts
+    | FctDef (s, sl, sts) -> printf "%s" s; print_list sl; print_statement_list sts
+
+let rec print_block (_code: block) =
+	match _code with (*printing statement list*)
+	| st::tail -> print_statement st; print_statement_list tail
+	| _ -> printf ""
+
+let rec print_env (e) =
+	match e with
+    | Number (f) -> print_float f
+    | Variable(s, f) -> printf "%s%f" s f
+    | Function (s, sl, b) -> printf "%s" s; print_list sl; print_block b
+
+let rec print_env_queue (q) =
+	match q with
+	| st::tail -> print_env st; print_env_queue tail
+	| _ -> printf ""
 
 let rec evalCode (_code: block) (_q:envQueue): envQueue =
     match _code with
-        | [] -> ( (* no more code to be evaulauted *)
-            Printf.printf ""; _q
+        | [] -> (
+			if (existsInQueue "Return" _q) then (
+				let returnObj = searchQueue "Return" _q in
+				Printf.printf "%f" (getValue returnObj);
+				let qq = removeEl _q (getIndex returnObj _q) in
+					evalCode [] qq
+			)
+			else _q
         )
         | st::tail -> ( (* eval next statement in list *)
 			if (existsInQueue "Return" _q) then (
-				Printf.printf "Returned: %f" (getValue (searchQueue "Return" _q ));
-				let qq = removeEl _q (getIndex (searchQueue "Return" _q) _q) in
+				let returnObj = searchQueue "Return" _q in
+				Printf.printf "Returned: %f" (getValue returnObj);
+				let qq = removeEl _q (getIndex returnObj _q) in
 					evalCode [] qq
 			)
 			else
-            let qq = evalStatement st _q in
-				evalCode tail qq
+	            let qq = evalStatement st _q in
+					evalCode tail qq
         )
-        | _ -> print_endline "0"; _q
+        | _ -> print_endline ""; _q
 
 and evalStatement (s: statement) (q:envQueue): envQueue =
     match s with
         | Assign(_v, _e) -> (
+			(* Printf.printf "%f" (getValue (fst evalExpr _e q)); *)
             let (x, qq) = (evalExpr _e q) in
                 if existsInQueue _v qq then(
+
                     let newList = removeEl qq (getIndex (searchQueue _v qq) qq) in
                     let newEnv:env = Variable(_v, x) in
                         newEnv::newList
@@ -161,6 +216,7 @@ and evalStatement (s: statement) (q:envQueue): envQueue =
         )
         | Return(_e) -> (
             evalStatement (Assign("Return", _e)) q
+
 
         )
         | Expr(_e) -> (
@@ -285,6 +341,13 @@ let rec searchAndReplace (_v:string) (_e:expr) (_q:envQueue): envQueue =
 
 
 (* Test for expression *)
+let%expect_test "searchQueueTest" =
+    searchQueue "v" [Variable("v", 1.0)] |>
+    getValue |>
+    printf "%f";
+    [%expect {| 1.000000 |}]
+
+(* Test for expression *)
 let%expect_test "evalNum" =
     fst (evalExpr (Num 10.0) [])|>
     printf "%F";
@@ -311,7 +374,7 @@ let p1: block = [
 
 	let%expect_test "p1" =
 		let _ = (evalCode p1 []) in print_endline "";
-        [%expect {| 1. |}]
+        [%expect {| 1.000000 |}]
 
 
 (*
@@ -343,8 +406,42 @@ let p2: block = [
 
 let%expect_test "p2" =
     let _ = evalCode p2 [] in print_endline "";
-    [%expect {| 3628800. |}]
+    [%expect {| 362880.000000 |}]
 
+	(*  Fibbonaci sequence
+	    define f(x) {
+	        if (x<1.0) then
+	            return (1.0)
+	        else
+	            return (f(x-1)+f(x-2))
+	    }
+
+	    f(3)
+	    f(5)
+	 *)
+
+let p3: block =
+    [
+        FctDef("f", ["x"], [
+            If(
+                Op2("<", Var("x"), Num(1.0)),
+                [Return(Num(1.0))],
+                [Return(Op2("+",
+                    Fct("f", [Op2("-", Var("x"), Num(1.0))]),
+                    Fct("f", [Op2("-", Var("x"), Num(1.0))])
+                ))])
+		]);
+        Expr(Fct("f", [Num(3.0)]));
+		Expr(Fct("f", [Num(3.0)]));
+        (* Expr(Fct("f", [Num(5.0)])); *)
+    ]
+
+let%expect_test "p3" =
+	let _ = evalCode p3 [] in print_endline "";
+    [%expect {|
+        2.
+        5.
+    |}]
 
 (*While test*)
 let p4: block = [
@@ -360,43 +457,60 @@ let p4: block = [
 
 let%expect_test "p4" =
     let _ = evalCode p4 [] in print_endline "";
-    [%expect {| 10. |}]
+    [%expect {| 10.000000 |}]
 
-(*  Fibbonaci sequence
-    define f(x) {
-        if (x<1.0) then
-            return (1.0)
-        else
-            return (f(x-1)+f(x-2))
-    }
-
-    f(3)
-    f(5)
- *)
-
-let p3: block =
+(*
+v = 5;
+For(int i = 1; i < 10; i++)
+{
+	v = v+i
+}
+*)
+let p5: block = [
+Assign("v", Num(5.0));
+For(
+    Assign("i", Num(1.0)),
+    Op2("<", Var("i"), Num(10.0)),
+    Expr(Op1("++", Var("i"))),
     [
-        FctDef("f", ["x"], [
-            (* If(
-                Op2("<", Var("x"), Num(1.0)),
-                [Return(Num(1.0))],
-                [Return(Op2("+",
-                    Fct("f", [Op2("-", Var("x"), Num(1.0))]),
-                    Fct("f", [Op2("-", Var("x"), Num(1.0))])
-                ))]) *)
-				Return(Num(34.0));
-		]);
-        Expr(Fct("f", [Num(3.0)]));
-		Expr(Fct("f", [Num(3.0)]));
-		Expr(Fct("f", [Num(3.0)]));
-		Assign("c", Num(5.0));
-		Expr(Var("c"))
-        (* Expr(Fct("f", [Num(5.0)])); *)
+        Assign("v", Op2("+", Var("v"), Var("i")))
     ]
+);
+Expr(Var("v"))
+]
 
-let%expect_test "p3" =
-	let _ = evalCode p3 [] in print_endline "";
-    [%expect {|
-        2.
-        5.
-    |}]
+let%expect_test "p5" =
+let _ = evalCode p5 [] in print_endline "";
+[%expect {| 50.000000 |}]
+
+(*
+v = 5;
+For(int i = 1; i < 10; i++)
+{
+	For(int x = 1; x < 10; x++)
+}
+*)
+let p6: block = [
+Assign("v", Num(5.0));
+For(
+    Assign("i", Num(1.0)),
+    Op2("<", Var("i"), Num(10.0)),
+    Expr(Op1("++", Var("i"))),
+    [
+	For(
+	    Assign("x", Num(1.0)),
+	    Op2("<", Var("x"), Num(10.0)),
+	    Expr(Op1("++", Var("x"))),
+	    [
+			Assign("v", Op2("+", Var("v"), Var("i")))
+		]
+		);
+
+    ]
+);
+Expr(Var("v"))
+]
+
+let%expect_test "p6" =
+let _ = evalCode p6 [] in print_endline "";
+[%expect {| 410.000000 |}]
